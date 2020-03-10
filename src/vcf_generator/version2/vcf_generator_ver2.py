@@ -41,12 +41,12 @@ def load_human_genome_sequence(genome_file):
     genome = twobitreader.TwoBitFile(genome_file)
     
 def load_metadata(vcf_template):
-    global metadata
     metadata = list()
     f = open(vcf_template, 'r')
     for line in f.readlines():
         if line.startswith('##'):
             metadata.append(line)
+    return metadata
                 
 #The headers in the genes.tsv file are as follows:
 #0 -- Strand_gene_id
@@ -76,6 +76,7 @@ def process_input_file(input_file):
     for variant in utils.records_iterator(input_file):
         lst = [variant['Gene name'], variant['genomicHGVS']]
         variants_list.append(lst)
+    return variants_list
 
 def segregate_variants():
     global subs, others
@@ -85,6 +86,7 @@ def segregate_variants():
             subs.append(variant)
         else:
             others.append(variant)
+    return subs,others
 
 def get_chromosome(gene):
     for k,v in gene_chrom_dict.items():
@@ -153,7 +155,7 @@ def main(input_file, output_file, genome_file, vcf_template, genesfile):
     print("Start of code:", tm.ctime(tm.time()))
 
     load_human_genome_sequence(genome_file)
-    load_metadata(vcf_template)
+    metadata = load_metadata(vcf_template)
 
     output = open(output_file, 'w')
     for line in metadata:
@@ -163,14 +165,14 @@ def main(input_file, output_file, genome_file, vcf_template, genesfile):
     output.write('\n')
 
     create_gene_chromosome_map(genesfile)
-    process_input_file(input_file)
+    variants_list = process_input_file(input_file)
 
     print("Total variants in the file:", len(variants_list))
 
-    segregate_variants()
+    (subs, others) = segregate_variants()
 
     print("#Substitution variants:", len(subs))
-    print("#INDEL variants": len(others))
+    print("#INDEL variants:", len(others))
 
     create_substitution_entries(output)
     create_non_substitution_entries(output)
