@@ -20,6 +20,7 @@
 	$DATA/examples/input_file.tsv \
 	$DATA/examples/output_file.vcf \
 	$DATA/human_genome_data/hg19.2bit \
+	$DATA/vcf_template/vcf_template.vcf \
 	$DATA/strandomics_input_data/genes.tsv
 
 [Change the input and output file names and directories according to your convenience]
