@@ -6,7 +6,7 @@ Created on Sun Feb  9 21:59:56 2020
 @author: sayantan
 """
 import time as tm
-import utils, errno
+import csv, errno, os
 import twobitreader
 import re, copy, sys
 
@@ -45,6 +45,12 @@ def load_metadata(vcf_template):
         if line.startswith('##'):
             metadata.append(line)
     return metadata
+
+def validate_gene(gene):
+    if gene not in genes_set:
+        raise Exception('ERROR : Given gene {} does not exist'.format(gene))
+    else:
+        print('INFO : Gene name {} is valid'.format(gene))
                 
 #The headers in the genes.tsv file are as follows:
 #0 -- Strand_gene_id
@@ -58,25 +64,34 @@ def load_metadata(vcf_template):
 def create_gene_chromosome_map(genesfile):
     global gene_chrom_dict
     gene_chrom_dict = dict()
-    
-    for gene in utils.records_iterator(genesfile):
+
+    global genes_set 
+    genes_set = set()
+
+    f = open(genesfile, 'r')
+    gene_data = csv.DictReader(f, delimiter='\t')    
+    for gene in gene_data:
         if gene['ChrName'] not in gene_chrom_dict:
             gene_chrom_dict[gene['ChrName']] = list()
         gene_chrom_dict[gene['ChrName']].append(gene['Symbol'])
+
+        genes_set.add(gene['Symbol'])
         
 #The headers in the input file are as follows:
 #0 -- Gene name
 #1 -- genomicHGVS
 
 def process_input_file(input_file):
-    global variants_list
     variants_list = list()
-    for variant in utils.records_iterator(input_file):
+
+    f = open(input_file)
+    file_data = csv.DictReader(f, delimiter='\t')
+    for variant in file_data:
         lst = [variant['Gene name'], variant['genomicHGVS']]
         variants_list.append(lst)
     return variants_list
 
-def segregate_variants():
+def segregate_variants(variants_list):
     subs, others = [list(), list()]
     for variant in variants_list:
         if '>' in variant[1]:
@@ -148,9 +163,8 @@ def create_non_substitution_entries(output, others):
         output.write(sep.join(field_values))
         output.write('\n')
 
-def main(input_file):
-    print("Start of code:", tm.ctime(tm.time()))
-
+def check_file_status():
+    print('INFO : Checking all essential Files status....')
     genome_file = '../../../data/human_genome_data/GrCh37/hg19.2bit'
     vcf_template = '../../../data/vcf_template/vcf_template.vcf'
     genesfile = '../../../data/strandomics_input_data/GrCh37/genes.tsv'
@@ -158,39 +172,70 @@ def main(input_file):
     if os.path.exists(genome_file):
         load_human_genome_sequence(genome_file)
     else:
-        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), genome_file)
+        raise Exception('Human Genome 2bit file {} not present in location'.format(genome_file))
 
     if os.path.exists(vcf_template):
         metadata = load_metadata(vcf_template)
     else:
-        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), vcf_template)
-
-    output_file = input_file.replace('.tsv', '_out.vcf')
-    output = open(output_file, 'w+')
-    for line in metadata:
-        output.write(line)
-
-    output.write(sep.join(HEADERS))
-    output.write('\n')
+        raise Exception('VCF template file {} not present in location'.format(vcf_template))
     
     if os.path.exists(genesfile):
         create_gene_chromosome_map(genesfile)
     else:
-        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), genesfile)
+        raise Exception('Strand genes file {} not present in location'.format(genesfile))
 
+    print('INFO : All input files present')
+    return metadata
+    
+
+def input_file_handling(input_file):
+    metadata = check_file_status()
     variants_list = process_input_file(input_file)
 
-    print("Total variants in the file:", len(variants_list))
+    print("INFO : Total variants entered : {}".format(len(variants_list)))
+    process_variants(variants_list, metadata)
 
-    (subs, others) = segregate_variants()
+def single_entry_handling(gene, genomicHGVS):
+    metadata = check_file_status()
+    validate_gene(gene)
+    variants_list = [[gene, genomicHGVS]]
+    process_variants(variants_list, metadata)
 
-    print("#Substitution variants:", len(subs))
-    print("#INDEL variants:", len(others))
+def process_variants(variants_list, metadata):
+    if len(variants_list) > 0:
+        output_file = 'output.vcf'
+        output = open(output_file, 'w+')
+        for line in metadata:
+            output.write(line)
 
-    create_substitution_entries(output, subs)
-    create_non_substitution_entries(output, others)
+        output.write(sep.join(HEADERS))
+        output.write('\n')
 
-    print("End of code:", tm.ctime(tm.time()))
+        (subs, others) = segregate_variants(variants_list)
+        print("INFO : Substitution variants: {}".format(len(subs)))
+        print("INFO : INDEL variants: {}".format(len(others)))
+        create_substitution_entries(output, subs)
+        create_non_substitution_entries(output, others)
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+
+    print('Start of code : {}'.format(tm.ctime(tm.time())))
+    try:
+        input = raw_input
+    except NameError:
+        pass
+
+    print('INFO : Enter a filename containing gene and genomic HGVS or enter gene name and genomic HGVS here')
+    option = input('INFO : Enter 1 for file option ; Enter 2 for gene and genomic HGVS --> ')
+    if option == '1':
+        print('INFO : You have chosen the file option')
+        filename = input('INPUT : Enter the filename (file should be TSV format containing headers "Gene name" and "genomic HGVS"): ')
+        input_file_handling(filename)
+    elif option == '2':
+        print('INFO : You have chosen to enter a single gene and genomic HGVS option')
+        (gene, genomicHGVS) = input('INPUT : Enter gene and genomic HGVS (space separated) : ').split(' ')
+        single_entry_handling(gene, genomicHGVS)
+    else:
+        print('ERROR : This is not a valid option')
+
+    print('End of code : {}'.format(tm.ctime(tm.time())))
