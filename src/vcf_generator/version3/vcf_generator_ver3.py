@@ -9,6 +9,7 @@ import time as tm
 import csv, errno, os
 import twobitreader
 import re, copy, sys
+import datetime
 
 HEADERS = ['#CHROM',
            'POS',
@@ -31,6 +32,12 @@ ENTRY_T = {'#CHROM': '',
            'INFO': '.',
            'FORMAT': 'GT:GQ:DP:SR:VR:VA:SB:ABQ:AMQ',
            'STRAN-404_S4_DMiSeq02-Run0059': '1/1:1000.00:608:54.28:54.28:0:0.41:36.11:254.01'}
+
+# A -- GrCh37 and B -- GrCh38
+genomic_build_dict = {'A': {'genome_file': '../../../data/human_genome_data/GrCh37/hg19.2bit', 
+                            'genesfile': '../../../data/strandomics_input_data/GrCh37/genes.tsv'}, 
+                      'B': {'genome_file': '../../../data/human_genome_data/GrCh38/hg38.2bit', 
+                            'genesfile': '../../../data/strandomics_input_data/GrCh38/genes_38.tsv'}}
 
 sep = '\t'
 
@@ -163,11 +170,12 @@ def create_non_substitution_entries(output, others):
         output.write(sep.join(field_values))
         output.write('\n')
 
-def check_file_status():
+def check_file_status(genomic_build):
     print('INFO : Checking all essential Files status....')
-    genome_file = '../../../data/human_genome_data/GrCh37/hg19.2bit'
+    genome_file = genomic_build_dict[genomic_build]['genome_file']
+    genesfile = genomic_build_dict[genomic_build]['genesfile']
+
     vcf_template = '../../../data/vcf_template/vcf_template.vcf'
-    genesfile = '../../../data/strandomics_input_data/GrCh37/genes.tsv'
 
     if os.path.exists(genome_file):
         load_human_genome_sequence(genome_file)
@@ -188,22 +196,23 @@ def check_file_status():
     return metadata
     
 
-def input_file_handling(input_file):
-    metadata = check_file_status()
+def input_file_handling(input_file, genomic_build):
+    metadata = check_file_status(genomic_build)
     variants_list = process_input_file(input_file)
 
     print("INFO : Total variants entered : {}".format(len(variants_list)))
     process_variants(variants_list, metadata)
 
-def single_entry_handling(gene, genomicHGVS):
-    metadata = check_file_status()
+def single_entry_handling(gene, genomicHGVS, genomic_build):
+    metadata = check_file_status(genomic_build)
     validate_gene(gene)
     variants_list = [[gene, genomicHGVS]]
     process_variants(variants_list, metadata)
 
 def process_variants(variants_list, metadata):
     if len(variants_list) > 0:
-        output_file = 'output.vcf'
+        x = datetime.datetime.now()
+        output_file = 'output_{}{}'.format(x, '.vcf')
         output = open(output_file, 'w+')
         for line in metadata:
             output.write(line)
@@ -225,16 +234,18 @@ if __name__ == '__main__':
     except NameError:
         pass
 
+    genomic_build = input('INFO: Choose Genomic Build -- Enter A for GrCh37 and Enter B for GrCh38 --> ')
+
     print('INFO : Enter a filename containing gene and genomic HGVS or enter gene name and genomic HGVS here')
     option = input('INFO : Enter 1 for file option ; Enter 2 for gene and genomic HGVS --> ')
     if option == '1':
         print('INFO : You have chosen the file option')
         filename = input('INPUT : Enter the filename (file should be TSV format containing headers "Gene name" and "genomic HGVS"): ')
-        input_file_handling(filename)
+        input_file_handling(filename, genomic_build)
     elif option == '2':
         print('INFO : You have chosen to enter a single gene and genomic HGVS option')
         (gene, genomicHGVS) = input('INPUT : Enter gene and genomic HGVS (space separated) : ').split(' ')
-        single_entry_handling(gene, genomicHGVS)
+        single_entry_handling(gene, genomicHGVS, genomic_build)
     else:
         print('ERROR : This is not a valid option')
 
