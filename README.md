@@ -6,20 +6,20 @@ It is a python-based script that can take in genomic HGVS nomenclature and creat
 
 ## Execution
 
-1. Clone the repository with the command - 
+* Clone the repository with the command - 
 
 		git clone https://github.com/sayantansls/vcf-generator.git
 
-2. Once the repository is cloned, enter the directory vcf-generator and run the script *setup.sh*
+* Once the repository is cloned, enter the directory vcf-generator and run the script *setup.sh*
 
 		./setup.sh
 
 This will ensure all the dependecy files (human genome reference data) are downloaded and placed in their appropriate location.
 You can download the files separately as well
-    1. **GrCh37** - http://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.2bit
-    2. **GrCh38** - http://hgdownload.cse.ucsc.edu/goldenpath/hg19/bigZips/hg19.2bit
+* **GrCh37** - http://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.2bit
+* **GrCh38** - http://hgdownload.cse.ucsc.edu/goldenpath/hg19/bigZips/hg19.2bit
 
-3. To run and use the vcf-generator, run the script *run.sh*
+* To run and use the vcf-generator, run the script *run.sh*
 
 		./run.sh
 
@@ -29,8 +29,8 @@ Once the script is run, it will ask for input to select certain parameters:
 
 ## Limitations
 
-1. Currently, the script does not support duplications - any HGVS nomenclature like g.125456dup will not be handled.
-2. The script only consumes genomic HGVS nomenclature, not cDNA or protein nomenclature.
+* Currently, the script does not support duplications - any HGVS nomenclature like g.125456dup will not be handled.
+* The script only consumes genomic HGVS nomenclature, not cDNA or protein nomenclature.
 
 *Both the limitations are currently being worked on and will be resolved in future versions*
 
