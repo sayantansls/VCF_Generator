@@ -24,8 +24,8 @@ You can download the files separately as well
 		./run.sh
 
 Once the script is run, it will ask for input to select certain parameters:
-    1. **Genomic Build** - Enter 'A' for GrCh37 OR 'B' for GrCh38 (this genomic build will be used for mapping in the VCF)
-    2. **Use Case** - The script either consumes a TSV file with headers *Gene name* and *genomic HGVS* with the data or it can take a single gene and genomic HGVS and create a VCF file. (Enter '1' for file option OR '2' for single gene and genomic HGVS option).
+* **Genomic Build** - Enter 'A' for GrCh37 OR 'B' for GrCh38 (this genomic build will be used for mapping in the VCF)
+* **Use Case** - The script either consumes a TSV file with headers *Gene name* and *genomic HGVS* with the data or it can take a single gene and genomic HGVS and create a VCF file. (Enter '1' for file option OR '2' for single gene and genomic HGVS option).
 
 ## Limitations
 
