@@ -16,16 +16,16 @@ It is a python-based script that can take in genomic HGVS nomenclature and creat
 
 This will ensure all the dependecy files (human genome reference data) are downloaded and placed in their appropriate location.
 You can download the files separately as well
- 1. **GrCh37** - http://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.2bit
- 2. **GrCh38** - http://hgdownload.cse.ucsc.edu/goldenpath/hg19/bigZips/hg19.2bit
+    1. **GrCh37** - http://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.2bit
+    2. **GrCh38** - http://hgdownload.cse.ucsc.edu/goldenpath/hg19/bigZips/hg19.2bit
 
 3. To run and use the vcf-generator, run the script *run.sh*
 
 		./run.sh
 
 Once the script is run, it will ask for input to select certain parameters:
- 1. **Genomic Build** - Enter 'A' for GrCh37 OR 'B' for GrCh38 (this genomic build will be used for mapping in the VCF)
- 2. **Use Case** - The script either consumes a TSV file with headers *Gene name* and *genomic HGVS* with the data or it can take a single gene and genomic HGVS and create a VCF file. (Enter '1' for file option OR '2' for single gene and genomic HGVS option).
+    1. **Genomic Build** - Enter 'A' for GrCh37 OR 'B' for GrCh38 (this genomic build will be used for mapping in the VCF)
+    2. **Use Case** - The script either consumes a TSV file with headers *Gene name* and *genomic HGVS* with the data or it can take a single gene and genomic HGVS and create a VCF file. (Enter '1' for file option OR '2' for single gene and genomic HGVS option).
 
 ## Limitations
 
