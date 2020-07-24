@@ -1,0 +1,41 @@
+##fileDate=07-02-2016
+##fileformat=VCFv4.1
+##FORMAT=<ID=ABQ,Number=1,Type=Float,Description="Average base quality">
+##FORMAT=<ID=AMQ,Number=1,Type=Float,Description="Average mapping quality">
+##FORMAT=<ID=CN,Number=1,Type=Float,Description="Copy Number">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
+##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Genotype Quality">
+##FORMAT=<ID=GSC,Number=1,Type=Float,Description="Sample GC Corrected Normalized Coverage">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=NQ,Number=1,Type=Float,Description="Absolute Z-Score">
+##FORMAT=<ID=NRB1,Number=1,Type=Integer,Description="Normal Reads Crossing breakpoint for primary event">
+##FORMAT=<ID=NRB2,Number=1,Type=Integer,Description="Normal Reads Crossing breakpoint for secondary event">
+##FORMAT=<ID=OSP1,Number=1,Type=Integer,Description="Other Split and Partial Reads for primary event">
+##FORMAT=<ID=OSP2,Number=1,Type=Integer,Description="Other Split and Partial Reads for secondary event">
+##FORMAT=<ID=PRP1,Number=1,Type=Integer,Description="Partial Reads Possibly Supporting for primary event">
+##FORMAT=<ID=PRP2,Number=1,Type=Integer,Description="Partial Reads Possibly Supporting for secondary event">
+##FORMAT=<ID=PRS1,Number=1,Type=Integer,Description="Paired Reads Supporting for primary event">
+##FORMAT=<ID=PRS2,Number=1,Type=Integer,Description="Paired Reads Supporting for secondary event">
+##FORMAT=<ID=SB,Number=1,Type=Float,Description="Strand bias">
+##FORMAT=<ID=SR,Number=1,Type=Float,Description="Supporting reads">
+##FORMAT=<ID=SRS1,Number=1,Type=Integer,Description="Split Reads Supporting for primary event">
+##FORMAT=<ID=SRS2,Number=1,Type=Integer,Description="Split Reads Supporting for secondary event">
+##FORMAT=<ID=VA,Number=1,Type=Integer,Description="1=Variant ambiguous, Genotype at this location is not clear, otherwise VA=0">
+##FORMAT=<ID=VR,Number=1,Type=Float,Description="Variant reads">
+##INFO=<ID=ANN,Number=.,Type=String,Description="Overlapping Genes">
+##INFO=<ID=Categories,Number=.,Type=String,Description="Event Categories">
+##INFO=<ID=CNVLEN,Number=1,Type=Integer,Description="Length">
+##INFO=<ID=CNVType,Number=1,Type=String,Description="CNVType">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End">
+##INFO=<ID=EVENTID,Number=1,Type=Integer,Description="Event ID">
+##INFO=<ID=GC,Number=1,Type=Float,Description="GC Percent">
+##INFO=<ID=Genes,Number=.,Type=String,Description="Genes">
+##INFO=<ID=IP,Number=0,Type=Flag,Description="Is Primary Event">
+##INFO=<ID=RE,Number=0,Type=Flag,Description="Reciprocal Event">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="SVTYPE">
+##INFO=<ID=VariantType,Number=1,Type=String,Description="VariantType">
+##reference=hg19
+##source=Avadis NGS
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	STRAN-404_S4_DMiSeq02-Run0059
+chr2	29416123	.	T	A	.	PASS	.	GT:GQ:DP:SR:VR:VA:SB:ABQ:AMQ	1/1:1000.00:608:54.28:54.28:0:0.41:36.11:254.01
+chr2	29416152	.	C	T	.	PASS	.	GT:GQ:DP:SR:VR:VA:SB:ABQ:AMQ	1/1:1000.00:608:54.28:54.28:0:0.41:36.11:254.01

@@ -27,6 +27,8 @@ Once the script is run, it will ask for input to select certain parameters:
 * **Genomic Build** - Enter 'A' for GrCh37 OR 'B' for GrCh38 (this genomic build will be used for mapping in the VCF)
 * **Use Case** - The script either consumes a TSV file with headers *Gene name* and *genomic HGVS* with the data or it can take a single gene and genomic HGVS and create a VCF file. (Enter '1' for file option OR '2' for single gene and genomic HGVS option).
 
+For the input file and output vcf format, check the examples at - /vcf-generator/data/examples/
+
 ## Limitations
 
 1. Currently, the script does not support duplications - any HGVS nomenclature like g.125456dup will not be handled.
