@@ -3,10 +3,10 @@
 """
 Created on Sun Feb  9 21:59:56 2020
 
-@author: sayantan
+@author: sayantan (sayantan.ghosh@strandls.com)
 """
 import time as tm
-import csv, errno, os
+import csv, os
 import twobitreader
 import re, copy, sys
 import datetime
@@ -54,10 +54,17 @@ def load_metadata(vcf_template):
     return metadata
 
 def validate_gene(gene):
-    if gene not in genes_set:
-        raise Exception('ERROR : Given gene {} does not exist'.format(gene))
-    else:
-        print('INFO : Gene name {} is valid'.format(gene))
+	isGeneInvalid = 0
+	if gene not in genes_set:
+		isGeneInvalid = 1
+	return isGeneInvalid
+
+def validate_position(chromosome, position, ref):
+	isPositionInvalid = 0
+	ref_from_genome = genome[chromosome][int(position) - 1]
+	if ref != ref_from_genome:
+		isPositionInvalid = 1
+	return isPositionInvalid, ref_from_genome
                 
 #The headers in the genes.tsv file are as follows:
 #0 -- Strand_gene_id
@@ -137,11 +144,26 @@ def create_substitution_entries(output, subs):
     for variant in subs:
         ENTRY = copy.deepcopy(ENTRY_T)
         gene, gHGVS = [variant[0], variant[1]]
+        isGeneInvalid = validate_gene(gene)
+
+        if isGeneInvalid:
+        	print('WARN: Gene name "{}" given is invalid'.format(gene))
+        	print('WARN: This variant "{} {}" will be skipped'.format(gene, gHGVS))
+        	continue
+
         ref_alt = re.findall(r'[A-Z]', gHGVS)
         position = ''.join(re.findall(r'[0-9]+', gHGVS))
         ref, alt = [ref_alt[0], ref_alt[1]]
+        chromosome = get_chromosome(gene)
+        (isPositionInvalid, actual_ref) = validate_position(chromosome, position, ref)
 
-        ENTRY['#CHROM'] = get_chromosome(gene)
+        if isPositionInvalid:
+        	print('WARN: The genomic HGVS "{}" given is invalid'.format(gHGVS))
+        	print('WARN: For position "{}", the ref provided is {} and actual ref is {}'.format(position, ref, actual_ref))
+        	print('WARN: This variant "{} {}" will be skipped'.format(gene, gHGVS))
+        	continue
+
+        ENTRY['#CHROM'] = chromosome
         ENTRY['POS'] = position
         ENTRY['REF'] = ref
         ENTRY['ALT'] = alt
@@ -154,6 +176,13 @@ def create_non_substitution_entries(output, others):
     for variant in others:
         ENTRY = copy.deepcopy(ENTRY_T)
         gene, gHGVS = [variant[0], variant[1]]
+        isGeneInvalid = validate_gene(gene)
+
+        if isGeneInvalid:
+        	print('WARN: Gene name "{}" given is invalid'.format(gene))
+        	print('WARN: This variant "{} {}" will be skipped'.format(gene, gHGVS))
+        	continue
+        	
         chrom = get_chromosome(gene)
 
         if "del" in gHGVS:
