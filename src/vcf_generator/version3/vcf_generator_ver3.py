@@ -180,11 +180,15 @@ def dup_handling(genomicHGVS, chrom):
 # Gets the pos, ref, alt for a Delins Variant (g.54669745_54669748delinsCTGG)
 def delins_handling(genomicHGVS, chrom):
     positions = re.findall(r'[0-9]+', genomicHGVS)
-    start, end = [positions[0], positions[1]]
-    pos = int(start)
-    ref = genome[chrom][pos-1:int(end)].upper()
+    if len(positions) == 1:
+        pos = int(positions[0])
+        ref = genome[chrom][pos-1].upper()
+    else:
+        start, end = [positions[0], positions[1]]
+        pos = int(start)
+        ref = genome[chrom][pos-1:int(end)].upper()
+
     alt = ''.join(re.findall(r'[A-Z]+', genomicHGVS))
-    print('ALT - ', alt)
     return pos, ref, alt
 
 # Writes out the VCF entries for the Substitution Variants
