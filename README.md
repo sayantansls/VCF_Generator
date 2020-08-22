@@ -31,10 +31,9 @@ For the input file and output vcf format, check the examples at - /vcf-generator
 
 ## Limitations
 
-1. Currently, the script does not support duplications - any HGVS nomenclature like g.125456dup will not be handled.
-2. The script only consumes genomic HGVS nomenclature, not cDNA or protein nomenclature.
+1. The script only consumes genomic HGVS nomenclature, not cDNA or protein nomenclature.
 
-*Both the limitations are currently being worked on and will be resolved in future versions*
+*The limitations are currently being worked on and will be resolved in future versions*
 
 ## Contact
 
