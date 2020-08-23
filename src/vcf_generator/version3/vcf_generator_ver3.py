@@ -1,9 +1,7 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
 """
-Created on Sun Feb  9 21:59:56 2020
-
-@author: sayantan (sayantan.ghosh@strandls.com)
+author: sayantan (sayantan.ghosh@strandls.com)
+This is an interactive python scripts which asks the user to select genomic build - GrCh37 or GrCh38
+The script also asks the user to either provide a file as input or a single gene and genomic HGVS
 """
 import time as tm
 import csv, os
