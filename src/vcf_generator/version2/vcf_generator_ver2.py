@@ -1,9 +1,7 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
 """
-Created on Sun Feb  9 21:59:56 2020
-
-@author: sayantan (sayantan.ghosh@strandls.com)
+author: sayantan (sayantan.ghosh@strandls.com)
+This script consumes 'n' number of input files (TSV format with headers 'Gene name' and 'genomicHGVS') 
+and creates separate VCF files for each input file
 """
 import time as tm
 import csv, os
@@ -32,19 +30,15 @@ ENTRY_T = {'#CHROM': '',
            'FORMAT': 'GT:GQ:DP:SR:VR:VA:SB:ABQ:AMQ',
            'STRAN-404_S4_DMiSeq02-Run0059': '1/1:1000.00:608:54.28:54.28:0:0.41:36.11:254.01'}
 
-# A -- GrCh37 and B -- GrCh38
-genomic_build_dict = {'A': {'genome_file': '../../../data/human_genome_data/GrCh37/hg19.2bit', 
-                            'genesfile': '../../../data/strandomics_input_data/GrCh37/genes.tsv'}, 
-                      'B': {'genome_file': '../../../data/human_genome_data/GrCh38/hg38.2bit', 
-                            'genesfile': '../../../data/strandomics_input_data/GrCh38/genes_38.tsv'}}
-
 sep = '\t'
 OUTPUT_DIR = '../../../data/output/'
 
+# Loads the genome information from the binary file of human genome reference
 def load_human_genome_sequence(genome_file):
     global genome
     genome = twobitreader.TwoBitFile(genome_file)
     
+# Loads the metadata to be written on the VCF file
 def load_metadata(vcf_template):
     metadata = list()
     f = open(vcf_template, 'r')
@@ -53,12 +47,14 @@ def load_metadata(vcf_template):
             metadata.append(line)
     return metadata
 
+# Validates a gene provided by the user
 def validate_gene(gene):
     isGeneInvalid = 0
     if gene not in genes_set:
         isGeneInvalid = 1
     return isGeneInvalid
 
+# Validates a position entered by the user
 def validate_position(chromosome, position, ref):
     isPositionInvalid = 0
     ref_from_genome = genome[chromosome][int(position) - 1].upper()
@@ -66,17 +62,7 @@ def validate_position(chromosome, position, ref):
         isPositionInvalid = 1
     return isPositionInvalid, ref_from_genome
 
-"""                
-The headers in the genes.tsv file are as follows:
-0 -- Strand_gene_id
-1 -- ChrName
-2 -- Strand
-3 -- Gene_start
-4 -- Gene_end
-5 -- Symbol
-6 -- Entrez_id
-"""
-                           
+# Creates a gene to chromosome dictionary {'gene': 'chromosome'}                         
 def create_gene_chromosome_map(genesfile):
     global gene_chrom_dict
     gene_chrom_dict = dict()
@@ -93,12 +79,7 @@ def create_gene_chromosome_map(genesfile):
 
         genes_set.add(gene['Symbol'])
 
-"""        
-The headers in the input file are as follows:
-0 -- Gene name
-1 -- genomicHGVS
-"""
-
+# Process the user provided input file to create a list of variants
 def process_input_file(input_file):
     variants_list = list()
 
@@ -257,27 +238,15 @@ def create_non_substitution_entries(output, others):
         output.write('\n')
 
 # Checks the status of all the Input files required for running the script
-def check_file_status(genomic_build):
+def check_file_status(genome_file, genes_file):
     print('INFO : Checking all essential Files status....')
-    genome_file = genomic_build_dict[genomic_build]['genome_file']
-    genesfile = genomic_build_dict[genomic_build]['genesfile']
 
     vcf_template = '../../../data/vcf_template/vcf_template.vcf'
-
-    if os.path.exists(genome_file):
-        load_human_genome_sequence(genome_file)
-    else:
-        raise Exception('Human Genome 2bit file {} not present in location'.format(genome_file))
 
     if os.path.exists(vcf_template):
         metadata = load_metadata(vcf_template)
     else:
         raise Exception('VCF template file {} not present in location'.format(vcf_template))
-    
-    if os.path.exists(genesfile):
-        create_gene_chromosome_map(genesfile)
-    else:
-        raise Exception('Strand genes file {} not present in location'.format(genesfile))
 
     print('INFO : All input files present')
     return metadata
@@ -302,16 +271,6 @@ def categorize_non_substitution_variants(others):
     print('--- Deletion Variants : {}'.format(len(dels)))
     print('--- Insertion Variants : {}'.format(len(ins)))
     print('--- Indels/Delins : {}'.format(len(indels)))
-    
-# Regulates workflow for single gene and genomic HGVS input option
-def input_file_handling(input_file, genomic_build):
-    print('\nINFO : File provided : {}'.format(input_file))
-    metadata = check_file_status(genomic_build)
-    variants_list = process_input_file(input_file)
-    output_file = os.path.join(OUTPUT_DIR, os.path.basename(input_file).replace('.tsv', '.vcf'))
-
-    print('INFO : Total variants entered : {}'.format(len(variants_list)))
-    process_variants(variants_list, metadata, output_file)
 
 # Calls all functions required for generating VCFs 
 def process_variants(variants_list, metadata, output_file):
@@ -332,7 +291,15 @@ def process_variants(variants_list, metadata, output_file):
         create_substitution_entries(output, subs)
         create_non_substitution_entries(output, others)
 
+# Regulates workflow for single gene and genomic HGVS input option
+def input_file_handling(input_file, genome_file, genes_file):
+    print('\nINFO : File provided : {}'.format(input_file))
+    metadata = check_file_status(genome_file, genes_file)
+    variants_list = process_input_file(input_file)
+    output_file = os.path.join(OUTPUT_DIR, os.path.basename(input_file).replace('.tsv', '.vcf'))
+
+    print('INFO : Total variants entered : {}'.format(len(variants_list)))
+    process_variants(variants_list, metadata, output_file)
+
 if __name__ == '__main__':
-    genomic_build = 'A'
-    for file in sys.argv[1:]:
-        input_file_handling(file, genomic_build)
+    input_file_handling(sys.argv[1], sys.argv[2], sys.argv[3])
