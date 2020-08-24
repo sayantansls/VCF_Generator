@@ -33,7 +33,17 @@ def check_ref_hgvs_genome(refFromHgvs, refFromGenome, genomicHGVS):
         ref = refFromGenome
     return ref
 
-# Creates a gene to chromosome dictionary {'gene': 'chromosome'}                         
+"""
+Creates a gene to chromosome dictionary {'gene': 'chromosome'}                
+The headers in the genes.tsv file are as follows:
+0 -- Strand_gene_id
+1 -- ChrName
+2 -- Strand
+3 -- Gene_start
+4 -- Gene_end
+5 -- Symbol
+6 -- Entrez_id
+"""                         
 def create_gene_chromosome_map(genesfile):
     gene_chrom_dict, genes_set = [dict(), set()]
 
@@ -53,7 +63,12 @@ def get_chromosome(gene, gene_chrom_dict):
         if gene in v:
             return k
 
-# Process the user provided input file to create a list of variants
+"""
+Process the user provided input file to create a list of variants        
+The headers in the input file are as follows:
+0 -- Gene name
+1 -- genomicHGVS
+"""
 def process_input_file(input_file):
     variants_list = list()
 

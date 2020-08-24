@@ -7,6 +7,7 @@ import time as tm
 import csv, os
 import twobitreader
 import re, copy, sys
+import vcf_utils
 
 HEADERS = ['#CHROM',
            'POS',
@@ -39,90 +40,6 @@ genomic_build_dict = {'A': {'genome_file': '../../../data/human_genome_data/GrCh
 sep = '\t'
 OUTPUT_DIR = '../../../data/output/'
 
-def load_human_genome_sequence(genome_file):
-    global genome
-    genome = twobitreader.TwoBitFile(genome_file)
-    
-def load_metadata(vcf_template):
-    metadata = list()
-    f = open(vcf_template, 'r')
-    for line in f.readlines():
-        if line.startswith('##'):
-            metadata.append(line)
-    return metadata
-
-def validate_gene(gene):
-	isGeneInvalid = 0
-	if gene not in genes_set:
-		isGeneInvalid = 1
-	return isGeneInvalid
-
-def validate_position(chromosome, position, ref):
-	isPositionInvalid = 0
-	ref_from_genome = genome[chromosome][int(position) - 1]
-	if ref != ref_from_genome:
-		isPositionInvalid = 1
-	return isPositionInvalid, ref_from_genome
-
-"""                
-The headers in the genes.tsv file are as follows:
-0 -- Strand_gene_id
-1 -- ChrName
-2 -- Strand
-3 -- Gene_start
-4 -- Gene_end
-5 -- Symbol
-6 -- Entrez_id
-"""
-                           
-def create_gene_chromosome_map(genesfile):
-    global gene_chrom_dict
-    gene_chrom_dict = dict()
-
-    global genes_set 
-    genes_set = set()
-
-    f = open(genesfile, 'r')
-    gene_data = csv.DictReader(f, delimiter='\t')    
-    for gene in gene_data:
-        if gene['ChrName'] not in gene_chrom_dict:
-            gene_chrom_dict[gene['ChrName']] = list()
-        gene_chrom_dict[gene['ChrName']].append(gene['Symbol'])
-
-        genes_set.add(gene['Symbol'])
-
-"""        
-The headers in the input file are as follows:
-0 -- Gene name
-1 -- genomicHGVS
-"""
-
-def process_input_file(input_file):
-    variants_list = list()
-
-    f = open(input_file)
-    file_data = csv.DictReader(f, delimiter='\t')
-    for variant in file_data:
-        lst = [variant['Gene name'], variant['genomicHGVS']]
-        variants_list.append(lst)
-    return variants_list
-
-# Segregates a list of variants into - Substitution and Non-Substitution Variants
-def segregate_variants(variants_list):
-    subs, others = [list(), list()]
-    for variant in variants_list:
-        if '>' in variant[1]:
-            subs.append(variant)
-        else:
-            others.append(variant)
-    return subs,others
-
-# Returns the chromosome for a given gene
-def get_chromosome(gene):
-    for k,v in gene_chrom_dict.items():
-        if gene in v:
-            return k
-
 # Gets the pos, ref, alt for a Deletion Variant (g.1124566delG)
 def del_handling(genomicHGVS, chrom):
     positions = re.findall(r'[0-9]+', genomicHGVS)
@@ -146,19 +63,6 @@ def other_handling(genomicHGVS, chrom):
     alt = ref + ins_bases
     return pos, ref, alt
 
-# Checks whether the ref from HGVS and ref from Genome is same or not
-def check_ref_hgvs_genome(refFromHgvs, refFromGenome, genomicHGVS):
-    ref = ''
-    if refFromHgvs:
-        if refFromHgvs == refFromGenome:
-            ref = refFromHgvs
-        else:
-            print('WARN : For Variant {}, ref in HGVS - {}, ref from genome - {}'.format(genomicHGVS, refFromHgvs, refFromGenome))
-            print('WARN : Variant {} is faulty and will be skipped'.format(genomicHGVS))
-    else:
-        ref = refFromGenome
-    return ref
-
 # Gets the pos, ref, alt for a Duplication Variant (g.98745415dupA)
 def dup_handling(genomicHGVS, chrom):
     positions = re.findall(r'[0-9]+', genomicHGVS)
@@ -171,7 +75,7 @@ def dup_handling(genomicHGVS, chrom):
         pos = int(start)
         refFromGenome = genome[chrom][pos-1:int(end)].upper()
         
-    ref = check_ref_hgvs_genome(refFromHgvs, refFromGenome, genomicHGVS)
+    ref = vcf_utils.check_ref_hgvs_genome(refFromHgvs, refFromGenome, genomicHGVS)
     alt = ref * 2
     return pos, ref, alt
 
@@ -194,7 +98,7 @@ def create_substitution_entries(output, subs):
     for variant in subs:
         ENTRY = copy.deepcopy(ENTRY_T)
         gene, gHGVS = [variant[0], variant[1]]
-        isGeneInvalid = validate_gene(gene)
+        isGeneInvalid = vcf_utils.validate_gene(gene, genes_set)
 
         if isGeneInvalid:
         	print('WARN: Gene name "{}" given is invalid'.format(gene))
@@ -204,8 +108,8 @@ def create_substitution_entries(output, subs):
         ref_alt = re.findall(r'[A-Z]', gHGVS)
         position = ''.join(re.findall(r'[0-9]+', gHGVS))
         ref, alt = [ref_alt[0], ref_alt[1]]
-        chromosome = get_chromosome(gene)
-        (isPositionInvalid, actual_ref) = validate_position(chromosome, position, ref)
+        chromosome = vcf_utils.get_chromosome(gene, gene_chrom_dict)
+        (isPositionInvalid, actual_ref) = vcf_utils.validate_position(chromosome, position, ref, genome)
 
         if isPositionInvalid:
         	print('WARN: The genomic HGVS "{}" given is invalid'.format(gHGVS))
@@ -227,14 +131,14 @@ def create_non_substitution_entries(output, others):
     for variant in others:
         ENTRY = copy.deepcopy(ENTRY_T)
         gene, gHGVS = [variant[0], variant[1]]
-        isGeneInvalid = validate_gene(gene)
+        isGeneInvalid = vcf_utils.validate_gene(gene, genes_set)
 
         if isGeneInvalid:
         	print('WARN: Gene name "{}" given is invalid'.format(gene))
         	print('WARN: This variant "{} {}" will be skipped'.format(gene, gHGVS))
         	continue
         	
-        chrom = get_chromosome(gene)
+        chrom = vcf_utils.get_chromosome(gene, gene_chrom_dict)
 
         if 'delins' in gHGVS:
             (pos, ref, alt) = delins_handling(gHGVS, chrom)
@@ -261,19 +165,20 @@ def check_file_status(genomic_build):
     genesfile = genomic_build_dict[genomic_build]['genesfile']
 
     vcf_template = '../../../data/vcf_template/vcf_template.vcf'
+    global genome, gene_chrom_dict, genes_set
 
     if os.path.exists(genome_file):
-        load_human_genome_sequence(genome_file)
+        genome = vcf_utils.load_human_genome_sequence(genome_file)
     else:
         raise Exception('Human Genome 2bit file {} not present in location'.format(genome_file))
 
     if os.path.exists(vcf_template):
-        metadata = load_metadata(vcf_template)
+        metadata = vcf_utils.load_metadata(vcf_template)
     else:
         raise Exception('VCF template file {} not present in location'.format(vcf_template))
     
     if os.path.exists(genesfile):
-        create_gene_chromosome_map(genesfile)
+        (gene_chrom_dict, genes_set) = vcf_utils.create_gene_chromosome_map(genesfile)
     else:
         raise Exception('Strand genes file {} not present in location'.format(genesfile))
 
@@ -283,7 +188,7 @@ def check_file_status(genomic_build):
 # Regulates workflow for single gene and genomic HGVS input option
 def input_file_handling(input_file, genomic_build):
     metadata = check_file_status(genomic_build)
-    variants_list = process_input_file(input_file)
+    variants_list = vcf_utils.process_input_file(input_file)
     output_file = os.path.join(OUTPUT_DIR, os.path.basename(input_file).replace('.tsv', '.vcf'))
 
     print("INFO : Total variants entered : {}".format(len(variants_list)))
@@ -292,7 +197,7 @@ def input_file_handling(input_file, genomic_build):
 # Regulates workflow for file input option
 def single_entry_handling(gene, genomicHGVS, genomic_build):
     metadata = check_file_status(genomic_build)
-    validate_gene(gene)
+    vcf_utils.validate_gene(gene, genes_set)
     variants_list = [[gene, genomicHGVS]]
     output_file = os.path.join(OUTPUT_DIR,''.join(['{}-{}'.format(gene, genomicHGVS), '.vcf']))
     process_variants(variants_list, metadata, output_file)
@@ -307,9 +212,10 @@ def process_variants(variants_list, metadata, output_file):
         output.write(sep.join(HEADERS))
         output.write('\n')
 
-        (subs, others) = segregate_variants(variants_list)
+        (subs, others) = vcf_utils.segregate_variants(variants_list)
         print("INFO : Substitution variants: {}".format(len(subs)))
         print("INFO : Non-Substitution variants: {}".format(len(others)))
+        if others: vcf_utils.categorize_non_substitution_variants(others)
         create_substitution_entries(output, subs)
         create_non_substitution_entries(output, others)
 
