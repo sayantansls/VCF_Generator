@@ -41,6 +41,6 @@ do
 		echo "ERROR : Incorrect genomic build provided"
 	fi
 
-	python vcf_generator_ver2.py $argument $GENOME $GENES
+	PYTHONPATH=../../common python vcf_generator_ver2.py $argument $GENOME $GENES
 	echo -e "\n"
 done
