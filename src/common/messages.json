@@ -1,0 +1,28 @@
+{
+	"error_messages" : {
+							"INVALID_GENE": "WARN : Gene name '{}' given is invalid",
+							"GENE_HGVS_NOT_PRESENT": "In entry '{}:{}', gene/genomicHGVS not present",
+							"VARIANT_SKIPPED": "WARN : This variant '{} {}' will be skipped",
+							"INVALID_GENOMIC_HGVS": "WARN : The genomic HGVS '{}' given is invalid",
+							"GENOME_NOT_PRESENT": "ERROR : Human Genome 2bit file {} not present in location",
+							"GENES_NOT_PRESENT": "ERROR : Strand genes file {} not present in location",
+							"VCF_TEMPLATE_NOT_PRESENT": "ERROR : VCF template file {} not present in location",
+							"INVALID_OPTION": "ERROR : This is not a valid option",
+							"UNKNOWN_OBJECT": "ERROR : File object '{}:{}'' is of unknown category",
+							"REF_MISMATCH": "WARN : For Variant {}, ref in HGVS - {}, ref from genome - {}"
+	},
+
+	"success_messages" : {
+							"TOTAL_VARIANTS": "INFO : Total variants entered : {}",
+							"SUB_VARIANTS": "INFO : Substitution variants: {}",
+							"NON_SUB_VARIANTS": "INFO : Non-Substitution variants: {}",
+							"DELETION_VARIANTS": "\t--- Deletion Variants : {}",
+							"DUPLICATION_VARIANTS": "\t--- Duplication Variants : {}",
+							"DELINS_VARIANTS": "\t--- Indels/Delins Variants : {}",
+							"INSERTION_VARIANTS": "\t--- Insertion Variants : {}",
+							"CHECKING_FILE_STATUS": "INFO : Checking all essential files status....",
+							"FILES_PRESENT": "INFO : All input files present"
+
+	}
+	
+}

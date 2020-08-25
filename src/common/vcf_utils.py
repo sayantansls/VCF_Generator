@@ -4,7 +4,7 @@ This script contains all the utility functions used in vcf_generator_verX.py scr
 """
 
 import twobitreader
-import csv
+import csv, json
 
 # Loads the genome information from the binary file of human genome reference
 def load_human_genome_sequence(genome_file):
@@ -27,8 +27,8 @@ def check_ref_hgvs_genome(refFromHgvs, refFromGenome, genomicHGVS):
         if refFromHgvs == refFromGenome:
             ref = refFromHgvs
         else:
-            print('WARN : For Variant {}, ref in HGVS - {}, ref from genome - {}'.format(genomicHGVS, refFromHgvs, refFromGenome))
-            print('WARN : Variant {} is faulty and will be skipped'.format(genomicHGVS))
+            print(messages['error_messages']['REF_MISMATCH'].format(genomicHGVS, refFromHgvs, refFromGenome))
+            print(messages['error_messages']['VARIANT_SKIPPED'].format(genomicHGVS))
     else:
         ref = refFromGenome
     return ref
@@ -118,9 +118,17 @@ def categorize_non_substitution_variants(others):
         elif 'delins' in genomicHGVS:
             indels.append(genomicHGVS)
         else:
-            print('File object {} {} is of unknown category'.format(gene, genomicHGVS))
+            print(messages['error_messages']['UNKNOWN_OBJECT'].format(gene, genomicHGVS))
 
-    print('--- Duplication Variants : {}'.format(len(dups)))
-    print('--- Deletion Variants : {}'.format(len(dels)))
-    print('--- Insertion Variants : {}'.format(len(ins)))
-    print('--- Indels/Delins : {}'.format(len(indels)))
+    print(messages['success_messages']['DUPLICATION_VARIANTS'].format(len(dups)))
+    print(messages['success_messages']['DELETION_VARIANTS'].format(len(dels)))
+    print(messages['success_messages']['INSERTION_VARIANTS'].format(len(ins)))
+    print(messages['success_messages']['DELINS_VARIANTS'].format(len(indels)))
+
+# Reads json file which stores relevant information
+def read_json(config_json):
+	json_file = open(config_json, 'r')
+	json_data = json.load(json_file)
+	return json_data
+
+messages = read_json('../../common/messages.json')

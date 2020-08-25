@@ -1,0 +1,29 @@
+{
+	"output": "../../../data/output",
+	"vcf_template": "../../../data/vcf_template/vcf_template.vcf",
+	"messages": "../../common/messages.json",
+	
+	"37": {
+			"genome": "../../../data/human_genome_data/GrCh37/hg19.2bit",
+			"genes": "../../../data/strandomics_input_data/GrCh37/genes.tsv"
+		  },
+
+	"38": {
+			"genome": "../../../data/human_genome_data/GrCh38/hg38.2bit",
+			"genes": "../../../data/strandomics_input_data/GrCh38/genes_38.tsv"
+		  },
+
+	"vcf_header": ["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "STRAN-404_S4_DMiSeq02-Run0059"],
+	"vcf_entry": {
+						"#CHROM": "",
+           				"POS": "",
+           				"ID": ".",
+           				"REF": "",
+           				"ALT": "",
+           				"QUAL": ".",
+           				"FILTER": "PASS",
+           				"INFO": ".",
+           				"FORMAT": "GT:GQ:DP:SR:VR:VA:SB:ABQ:AMQ",
+           				"STRAN-404_S4_DMiSeq02-Run0059": "1/1:1000.00:608:54.28:54.28:0:0.41:36.11:254.01"
+					}
+}
