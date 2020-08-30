@@ -21,7 +21,8 @@
 							"DELINS_VARIANTS": "\t--- Indels/Delins Variants : {}",
 							"INSERTION_VARIANTS": "\t--- Insertion Variants : {}",
 							"CHECKING_FILE_STATUS": "INFO : Checking all essential files status....",
-							"FILES_PRESENT": "INFO : All input files present"
+							"FILES_PRESENT": "INFO : All input files present",
+							"OUTPUT": "INFO : VCF file output in - {}"
 
 	}
 	
