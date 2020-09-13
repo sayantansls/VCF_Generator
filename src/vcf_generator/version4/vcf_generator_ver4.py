@@ -147,8 +147,9 @@ class VCFEntry():
 			self.vcf_format, self.sample));
 
 	def writeEntry(self):
-		write_output = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(self.chrom, self.pos, self.vcf_id, self.ref, self.alt, \
-			self.qual, self.vcf_filter, self.info, self.vcf_format, self.sample)
+		write_output = '{chrom}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter}\t{info}\t{format}\t{sample}'.format(chrom=self.chrom, \
+			pos=self.pos, id=self.vcf_id, ref=self.ref, alt=self.alt, qual=self.qual, filter=self.vcf_filter, info=self.info, \
+			format=self.vcf_format, sample=self.sample)
 		return write_output
 
 # Datamodel(object) that defines the File Entry (an entry from the input file)

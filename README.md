@@ -31,7 +31,7 @@ For the input file and output vcf format, check the examples at - /vcf-generator
 
 ## Limitations
 
-1. The script only consumes genomic HGVS nomenclature, not cDNA or protein nomenclature.
+The script only consumes genomic HGVS nomenclature, not cDNA or protein nomenclature.
 
 *The limitations are currently being worked on and will be resolved in future versions*
 
