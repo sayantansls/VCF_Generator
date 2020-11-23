@@ -8,7 +8,7 @@
 							"GENES_NOT_PRESENT": "ERROR : Strand genes file {} not present in location",
 							"VCF_TEMPLATE_NOT_PRESENT": "ERROR : VCF template file {} not present in location",
 							"INVALID_OPTION": "ERROR : This is not a valid option",
-							"UNKNOWN_OBJECT": "ERROR : File object '{}:{}'' is of unknown category",
+							"UNKNOWN_OBJECT": "ERROR : File object '{}:{}' is of unknown category",
 							"REF_MISMATCH": "WARN : For Variant {}, ref in HGVS - {}, ref from genome - {}"
 	},
 
