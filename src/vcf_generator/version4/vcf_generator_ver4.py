@@ -28,7 +28,8 @@ class SubstitutionVariant(Variant):
 	def getReference(self, chromosome, position):
 		refFromHgvs = re.findall(r'[A-Z]', self.file_entry.genomicHgvs)[0]
 		refFromGenome = genome[chromosome][int(position)-1].upper()
-		return vcf_utils.check_ref_hgvs_genome(refFromHgvs, refFromGenome, self.file_entry.genomicHgvs)
+		return vcf_utils.validate_reference({"refFromHgvs": refFromHgvs, 
+			"refFromGenome": refFromGenome, "genomicHgvs": self.file_entry.genomicHgvs})
 
 	def getAlteration(self):
 		return re.findall(r'[A-Z]', self.file_entry.genomicHgvs)[1]
@@ -81,7 +82,8 @@ class DuplicationVariant(NonSubstitutionVariant):
 			start, end = [positions[0], positions[1]]
 			pos = int(start)
 			refFromGenome = genome[chromosome][pos-1:int(end)].upper()
-		return vcf_utils.check_ref_hgvs_genome(refFromHgvs, refFromGenome, self.file_entry.genomicHgvs)
+		return vcf_utils.validate_reference({"refFromHgvs": refFromHgvs, 
+			"refFromGenome": refFromGenome, "genomicHgvs": self.file_entry.genomicHgvs})
 
 	def getAlteration(self, chromosome, position, reference):
 		return reference * 2
@@ -234,8 +236,7 @@ def create_non_substitution_variants(non_sub_objects):
 def create_vcf_entries_from_sub_variants(sub_variants):
 	sub_vcf_entries = list()
 	for sub_variant in sub_variants:
-		chromosome = sub_variant.getChromosome()
-		position = sub_variant.getPosition()
+		chromosome, position = [sub_variant.getChromosome(), sub_variant.getPosition()]
 		sub_vcf_entry = VCFEntry(chromosome, position, sub_variant.getReference(chromosome, position), sub_variant.getAlteration())
 		sub_vcf_entries.append(sub_vcf_entry)
 	return sub_vcf_entries
@@ -270,8 +271,8 @@ def main(input_file):
 
 	global gene_chrom_dict, genome
 	if non_sub_objects: categorize_non_sub_objects(non_sub_objects)
-	genome = vcf_utils.load_human_genome_sequence(json_data['37']['genome'])
-	(gene_chrom_dict, genes_set) = vcf_utils.create_gene_chromosome_map(json_data['37']['genes'])
+	genome = vcf_utils.load_human_genome_sequence('37')
+	(gene_chrom_dict, genes_set) = vcf_utils.create_gene_chromosome_map('37')
 
 	if sub_objects: sub_variants = create_substitution_variants(sub_objects)
 	if non_sub_objects: non_sub_variants = create_non_substitution_variants(non_sub_objects)
