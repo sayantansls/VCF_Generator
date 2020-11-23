@@ -82,9 +82,7 @@ def create_gene_chromosome_map(genomic_build):
     return gene_chrom_dict, genes_set
 
 # Returns the chromosome for a given gene
-def get_chromosome(gene, gene_chrom_dict = {}):
-    if not gene_chrom_dict:
-        gene_chrom_dict = create_gene_chromosome_map()[0]
+def get_chromosome(gene, gene_chrom_dict):
     for k,v in gene_chrom_dict.items():
         if gene in v:
             return k
@@ -117,7 +115,7 @@ def segregate_variants(variants_list):
     return subs,others
 
 # Validates a gene provided by the user
-def validate_gene(gene, genes_set = {}):
+def validate_gene(gene, genes_set):
     isGeneInvalid = False
     if gene not in genes_set:
         isGeneInvalid = True
