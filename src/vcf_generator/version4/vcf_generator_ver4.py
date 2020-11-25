@@ -6,8 +6,11 @@ An object oriented approach for vcf-generation
 import sys, csv, re, os
 import vcf_utils
 
+GENOMIC_BUILD = '37'
 json_data = vcf_utils.read_json('../../common/config.json')
 messages = vcf_utils.read_json(json_data['messages'])
+genome = vcf_utils.load_human_genome_sequence(GENOMIC_BUILD)
+(gene_chrom_dict, genes_set) = vcf_utils.create_gene_chromosome_map(GENOMIC_BUILD)
 
 # Datamodel(object) that defines a Variant
 class Variant():
@@ -268,12 +271,8 @@ def main(input_file):
 	(sub_objects, non_sub_objects) = segregate_file_objects(file_objects)
 	print(messages['success_messages']['SUB_VARIANTS'].format(len(sub_objects)))
 	print(messages['success_messages']['NON_SUB_VARIANTS'].format(len(non_sub_objects)))
-
-	global gene_chrom_dict, genome
+	
 	if non_sub_objects: categorize_non_sub_objects(non_sub_objects)
-	genome = vcf_utils.load_human_genome_sequence('37')
-	(gene_chrom_dict, genes_set) = vcf_utils.create_gene_chromosome_map('37')
-
 	if sub_objects: sub_variants = create_substitution_variants(sub_objects)
 	if non_sub_objects: non_sub_variants = create_non_substitution_variants(non_sub_objects)
 

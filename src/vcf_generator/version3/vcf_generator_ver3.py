@@ -139,7 +139,7 @@ if __name__ == '__main__':
         input_file_handling(filename)
     elif option == '2':
         print('INFO : You have chosen to enter a single gene and genomic HGVS option')
-        (gene, genomicHGVS) = input('INPUT : Enter gene and genomic HGVS (space separated) : ').split(' ')
+        (gene, genomicHGVS) = input('INFO : Enter gene and genomic HGVS (space separated) : ').split(' ')
         single_entry_handling(gene, genomicHGVS)
     else:
         print('ERROR : This is not a valid option')
